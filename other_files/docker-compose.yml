@@ -1,0 +1,103 @@
+version: "3"
+services:
+  nginx:
+    build: ./nginx
+    image: nginx
+    container_name: nginx
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - wordpress
+      - phpmyadmin
+    restart: always
+    networks: 
+      - ft
+
+  mysql:
+    build: ./mysql
+    image: mysql
+    container_name: mysql
+    ports:
+      - '3306:3306'
+    volumes:
+      - dbdata:/var/lib/mysql 
+    stdin_open: true
+    tty: true
+    restart: always
+    networks: 
+      - ft
+
+  wordpress:
+    build: ./wordpress
+    image: wp
+    container_name: wp
+    ports:
+      - '5050:5050'
+    restart: always
+    
+  phpmyadmin:
+    build: ./phpmyadmin
+    image: pma
+    container_name: pma
+    ports:
+      - '5000:5000'
+    restart: always
+    networks: 
+      - ft
+  
+  ftps:
+    build: ./ftps
+    image: ftps
+    container_name: ftps
+    stdin_open: true
+    tty: true
+    ports:
+      - '20:20'
+      - '21:21'
+      - '2020:2020'
+      - '2021:2021'
+    restart: always
+    networks: 
+      - ft
+
+  grafana:
+    build: ./grafana
+    image: grafana
+    container_name: grafana
+    ports:
+      - '3000:3000'
+    restart: always
+    depends_on:
+      - influxdb
+    networks: 
+      - ft
+  
+  influxdb:
+    build: ./influxdb
+    image: influxdb
+    container_name: influxdb
+    stdin_open: true
+    tty: true
+    ports:
+      - '8086:8086'
+      - '8088:8088'
+    restart: always
+    networks: 
+      - ft
+  
+  #telegraf:
+  #  build: ./telegraf
+   # image: telegraf
+  #  container_name: telegraf
+  #  stdin_open: true
+  #  tty: true
+  #  restart: always
+  #  depends_on:
+  #    - influxdb
+
+volumes:
+  dbdata:
+
+networks: 
+  ft:
